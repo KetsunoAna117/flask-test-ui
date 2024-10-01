@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3A206BDC2CAA6BCF000784BE /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 3A206BDB2CAA6BCF000784BE /* SocketIO */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		3A33B33C2CA9533B00833E6F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A206BDC2CAA6BCF000784BE /* SocketIO in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = "Flask-Test-UI";
 			packageProductDependencies = (
+				3A206BDB2CAA6BCF000784BE /* SocketIO */,
 			);
 			productName = "Flask-Test-UI";
 			productReference = 3A33B32B2CA9533900833E6F /* Flask-Test-UI.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 3A33B3222CA9533900833E6F;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				3A206BC72CAA6B57000784BE /* XCRemoteSwiftPackageReference "socket.io-client-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3A33B32C2CA9533900833E6F /* Products */;
 			projectDirPath = "";
@@ -558,6 +567,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3A206BC72CAA6B57000784BE /* XCRemoteSwiftPackageReference "socket.io-client-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/socketio/socket.io-client-swift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3A206BDB2CAA6BCF000784BE /* SocketIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3A206BC72CAA6B57000784BE /* XCRemoteSwiftPackageReference "socket.io-client-swift" */;
+			productName = SocketIO;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3A33B3232CA9533900833E6F /* Project object */;
 }

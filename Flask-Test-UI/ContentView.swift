@@ -21,17 +21,23 @@ struct ContentView: View {
             }
             Button("Start Fetching Data") {
                 print("Button Pressed, Start fetching data periodically...")
-                vm.startFetchingPeriodically()
+                vm.setupWebSocket()
             }
             .buttonStyle(BorderedProminentButtonStyle())
             
             Button("Stop Fetching Data") {
                 print("Button Pressed, Stop fetching data...")
-                vm.stopFetching()
+                vm.disconnectWebSocket()
                 vm.stockList = []
             }
             .buttonStyle(BorderedProminentButtonStyle())
             .tint(Color.red)
+            
+            Button("Send Hello World") {
+                print("Sending Hello World")
+                vm.handleUserInput()
+            }
+            .buttonStyle(BorderedButtonStyle())
         }
         .padding()
     }

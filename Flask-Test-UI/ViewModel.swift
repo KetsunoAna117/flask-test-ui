@@ -1,70 +1,129 @@
+//
+//  Person.swift
+//  Flask-Test-UI
+//
+//  Created by Hans Arthur Cupiterson on 29/09/24.
+//
+
 import Foundation
+import SocketIO
 
 @Observable
 class ViewModel {
     var stockList: [Stock] = []
-    var timer: Timer? = nil
     
-    let url_railway = "http://flask-test-production-a93a.up.railway.app"
-    let url_local = "http://127.0.0.1:5000"
+    let manager: SocketManager
+    let socket: SocketIOClient
     
-    func startFetchingPeriodically() {
-        // Call fetchData once immediately
-        fetchData()
-
-        // Invalidate any previous timer
-        timer?.invalidate()
-
-        // Start a timer that repeats every 60 seconds
-        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
-            print("Now fetching data...")
-            self?.fetchData()
+    let url_rest_railway = "http://flask-test-production-a93a.up.railway.app/stock"
+    let url_rest_local = "http://127.0.0.1:5001/stock"
+    let ws_url_local = "ws://127.0.0.1:5001"
+    
+    init() {
+        // Initialize the Socket.IO manager
+        manager = SocketManager(
+            socketURL: URL(string: ws_url_local)!,
+            config: [.log(true), .compress]
+        )
+        socket = manager.defaultSocket
+        setupWebSocket()
+    }
+    
+    // Setup WebSocket event listeners
+    func setupWebSocket() {
+        // Handle the connection event
+        socket.on(clientEvent: .connect) { data, ack in
+            print("WebSocket connected")
+            
+            self.fetchInitialStockList()
+        }
+        
+        // Listen for the 'update_stock' event from the server
+        socket.on("update_stock") { [weak self] data, ack in
+            print("Update Stock trigerred")
+            guard let self = self else { return }
+            if let stockData = data[0] as? [[String: Any]] {
+                // Parse the stock data and update stockList
+                self.handleStockUpdate(stockData)
+            }
+        }
+        
+        socket.on("new_stock_event") { data, ack in
+            print("New Stock Event Triggered!")
+        }
+        
+        socket.on("user_input_response") { data, ack in
+            guard let response = data[0] as? String else { return }
+            print("Received Response: \(response)")
+        }
+        
+        // Connect to the WebSocket
+        socket.connect()
+        
+        switch socket.status {
+        case .connected:
+            print("socket connected")
+        case .connecting:
+            print("socket connecting")
+        case .disconnected:
+            print("socket disconnected")
+        case .notConnected:
+            print("socket not connected")
         }
     }
     
-    func stopFetching() {
-        timer?.invalidate()
-        timer = nil
-    }
-
-    func fetchData(completion: @escaping (Error?) -> Void = { _ in }) {
-        let url = URL(string: "\(url_railway)/stock")!
-        
-        let task = URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            if let error = error {
-                // Handle the error
-                DispatchQueue.main.async {
-                    print("Failed to fetch data with error: \(error)")
-                    completion(error)
-                }
-                return
-            }
+    // Parse and update stock data
+    private func handleStockUpdate(_ stockData: [[String: Any]]) {
+        do {
+            // Convert the stock data dictionary into a JSON format and decode it
+            let jsonData = try JSONSerialization.data(withJSONObject: stockData)
+            let updatedStocks = try JSONDecoder().decode([Stock].self, from: jsonData)
             
-            guard let data = data else {
-                DispatchQueue.main.async {
-                    completion(NSError(domain: "DataError", code: -1, userInfo: nil))
-                }
+            // Update stockList on the main thread
+            DispatchQueue.main.async {
+                print("Stock Updated")
+                self.stockList = updatedStocks
+            }
+        } catch {
+            print("Error decoding stock data: \(error)")
+        }
+    }
+    
+    func handleUserInput(){
+        socket.emit("user_input", "User Input: Hello World")
+    }
+    
+    // Make an HTTP GET request to fetch the initial stock list
+    func fetchInitialStockList() {
+        let url = URL(string: url_rest_local)!
+        
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data, error == nil else {
+                print("Error fetching stock list: \(String(describing: error))")
                 return
             }
             
             do {
-                let stocks = try JSONDecoder().decode([Stock].self, from: data)
-                
-                // Update the stock list on the main thread
+                // Decode the JSON response into the Stock array
+                let stockList = try JSONDecoder().decode([Stock].self, from: data)
                 DispatchQueue.main.async {
-                    self?.stockList = stocks
-                    completion(nil) // No error, return success
+                    self.stockList = stockList
+                    print("Initial Stock List fetched and updated")
                 }
-                
             } catch {
-                // Handle decoding error
-                DispatchQueue.main.async {
-                    print("Failed to fetch data with error: \(error)")
-                    completion(error)
-                }
+                print("Error decoding stock data: \(error)")
             }
         }
         
-        task.resume()  // Start the task
+        task.resume()  // Start the HTTP GET request
+    }
+    
+    // Disconnect WebSocket
+    func disconnectWebSocket() {
+        socket.off("update_stock")
+        socket.off("new_stock_event")
+        socket.off(clientEvent: .connect)
+        socket.disconnect()
     }
 }
+
