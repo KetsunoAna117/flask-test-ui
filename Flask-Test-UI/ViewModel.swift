@@ -77,7 +77,11 @@ class ViewModel {
         do {
             // Convert the stock data dictionary into a JSON format and decode it
             let jsonData = try JSONSerialization.data(withJSONObject: stockData)
-            let updatedStocks = try JSONDecoder().decode([Stock].self, from: jsonData)
+            
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            
+            let updatedStocks = try decoder.decode([Stock].self, from: jsonData)
             
             // Update stockList on the main thread
             DispatchQueue.main.async {
@@ -105,7 +109,10 @@ class ViewModel {
             
             do {
                 // Decode the JSON response into the Stock array
-                let stockList = try JSONDecoder().decode([Stock].self, from: data)
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                
+                let stockList = try decoder.decode([Stock].self, from: data)
                 DispatchQueue.main.async {
                     self.stockList = stockList
                     print("Initial Stock List fetched and updated")
