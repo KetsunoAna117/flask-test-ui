@@ -16,7 +16,7 @@ struct ContentView: View {
                 HStack {
                     Text(stock.name)
                     Spacer()
-                    Text(stock.price.description)  // Assuming price is part of Stock model
+                    Text("Rp. \(stock.price.withCommas())")  // Assuming price is part of Stock model
                 }
             }
             Button("Start Fetching Data") {
@@ -45,5 +45,13 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+}
+
+extension Int {
+    func withCommas() -> String {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        return numberFormatter.string(from: NSNumber(value:self))!
+    }
 }
 
