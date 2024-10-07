@@ -6,12 +6,19 @@
 //
 
 import SwiftUI
+import TipKit
 
 @main
 struct Flask_Test_UIApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .task {
+                    try? Tips.configure([
+//                        .displayFrequency(.hourly),
+                        .datastoreLocation(.applicationDefault)
+                    ])
+                }
         }
     }
 }

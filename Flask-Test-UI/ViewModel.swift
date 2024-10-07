@@ -26,7 +26,6 @@ class ViewModel {
             config: [.log(true), .compress]
         )
         socket = manager.defaultSocket
-        setupWebSocket()
     }
     
     // Setup WebSocket event listeners
