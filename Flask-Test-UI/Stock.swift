@@ -12,7 +12,7 @@ struct Stock: Codable {
     var price: Int
     
     enum CodingKeys: String, CodingKey {
-        case name = "kode_name"
-        case price = "total_shares"
+        case name = "name"
+        case price = "price"
     }
 }

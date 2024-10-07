@@ -19,6 +19,8 @@ class ViewModel {
     let url_rest_local = "http://127.0.0.1:5001/stock"
     let ws_url_local = "ws://127.0.0.1:5001"
     
+    var isConnectedToWebSocket = false
+    
     init() {
         // Initialize the Socket.IO manager
         manager = SocketManager(
@@ -30,6 +32,13 @@ class ViewModel {
     
     // Setup WebSocket event listeners
     func setupWebSocket() {
+        if isConnectedToWebSocket == true {
+            print("ERROR! Websocket is already connected")
+            return
+        }
+        
+        isConnectedToWebSocket = true
+        
         // Handle the connection event
         socket.on(clientEvent: .connect) { data, ack in
             print("WebSocket connected")
@@ -119,6 +128,13 @@ class ViewModel {
     
     // Disconnect WebSocket
     func disconnectWebSocket() {
+        if isConnectedToWebSocket == false {
+            print("ERROR! Websocket is not connected")
+            return
+        }
+        
+        isConnectedToWebSocket = false
+        
         socket.off("update_stock")
         socket.off("new_stock_event")
         socket.off(clientEvent: .connect)
